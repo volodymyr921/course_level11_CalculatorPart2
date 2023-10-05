@@ -16,24 +16,44 @@ public class Assignment11Part1 {
      * @param args The expression and its parameters
      */
     public static void main(String[] args) {
-        String formula = null;
-
         FormulaTree formulaTree = parseFormula(args);
-
         System.out.println(calculate(formulaTree.getFormula()));
     }
 
     private static FormulaTree parseFormula(String[] data) {
 
         String formulaParse = data[0];
-        formulaParse =formulaParse.replaceAll("\\s", "");
+        formulaParse = formulaParse.replaceAll("\\s", "");
+
+//        int countBrackets = 0;
+//        int startIndexBracket;
+//        int endIndexBracket;
+//        for (int i = 0; i < formulaParse.length(); i++) {
+//            if (formulaParse.charAt(i) == '(') {
+//                startIndexBracket = i;
+//                int j = i + 1;
+//                while (formulaParse.charAt(j) != ')') {
+//                  if (formulaParse.charAt(j) == '(') {
+//                        startIndexBracket = j;
+//                        countBrackets++;
+//                    }
+//                    j++;
+//                }
+//                endIndexBracket = j;
+//                String newFormula = formulaParse.substring(startIndexBracket + 1, endIndexBracket);
+//
+//                System.out.println(newFormula);
+//            }
+//        }
+
+        // TODO: Заміна змінних їх значеннями
         HashMap<String, Double> variables = new HashMap<>();
         for (int i = 1; i < data.length; i++) {
             String variableAndValue = data[i].replaceAll("\\s", "");
             variables.put(getVariable(variableAndValue), getValue(variableAndValue));
         }
-        for(String variable : variables.keySet()) {
-            formulaParse = formulaParse.replaceAll(variable,String.valueOf(variables.get(variable)));
+        for (String variable : variables.keySet()) {
+            formulaParse = formulaParse.replaceAll(variable, String.valueOf(variables.get(variable)));
         }
 
         return new FormulaTree(formulaParse);
@@ -67,7 +87,7 @@ public class Assignment11Part1 {
      */
     private static double calculate(String formula) {
         try {
-            return  evaluate(formula, 0);
+            return evaluate(formula);
         } catch (Exception e) {
             System.err.println("Incorrect calculate");
             return Double.NaN;
@@ -81,139 +101,19 @@ public class Assignment11Part1 {
      * @param formula The formula to be calculated
      * @return The result of the expression
      */
-    private static double evaluate(String formula, double x) {
-        return new Object() {
-            int pos = -1, character;
+    private static double evaluate(String formula) {
+        while (isBrackets(formula)) {
+            formula = new Brackets(formula).simplifyFormula();
+        }
+        return new Calculation(formula).parse();
+    }
 
-            /**
-             * Gets the next character
-             */
-            void nextChar() {
-                character = (++pos < formula.length()) ? formula.charAt(pos) : -1;
+    private static boolean isBrackets(String formula) {
+        for (int i = 0; i < formula.length(); i++) {
+            if (formula.charAt(i) == '(') {
+                return true;
             }
-
-            /**
-             * Tests a character against the current character
-             * @param symbol The character
-             * @return Symbols match or not
-             */
-            boolean checkSymbol(int symbol) {
-                if (character == symbol) {
-                    nextChar();
-                    return true;
-                }
-                return false;
-            }
-
-            /**
-             * This method begins the evaluation of a mathematical expression
-             *
-             * @return The result expression
-             */
-            double parse() {
-                nextChar();
-                double x = parseExpression();
-                if (pos < formula.length()) throw new RuntimeException("Unexpected: " + (char) character);
-                return x;
-            }
-
-            /**
-             * This method evaluates an expression that consists of addition and subtraction
-             *
-             * @return The result expression
-             */
-            double parseExpression() {
-                double x = parseTerm();
-                for (; ; ) {
-                    if (checkSymbol('+')) x += parseTerm();
-                    else if (checkSymbol('-')) x -= parseTerm();
-                    else return x;
-                }
-            }
-
-            /**
-             * This method evaluates an expression
-             * that consists of multiplication and division
-             *
-             * @return The result expression
-             */
-            double parseTerm() {
-                double x = parsePow();
-                for (; ; ) {
-                    if (checkSymbol('*')) x *= parsePow();
-                    else if (checkSymbol('/')) x /= parsePow();
-                    else return x;
-                }
-            }
-
-            /**
-             * This method evaluates an expression
-             * that consists of exponentiation
-             *
-             * @return The result expression
-             */
-            double parsePow() {
-                double x = parseBrackets();
-                for (; ; ) {
-                    if (checkSymbol('^')) x = Math.pow(x, parseBrackets());
-                    else return x;
-                }
-            }
-
-            double parseBrackets() {
-                double x = parseFactor();
-//                for (; ; ) {
-//                    if (checkSymbol('(')) {
-//                        int startIndex = this.pos;
-//                        int i = pos;
-//                        while(formula.charAt(i) != ')') {
-//                            if (formula.charAt(i) != ')') {
-//                                parseBrackets();
-//                            }
-//                            i++;
-//                        }
-//                        int endIndex = formula.charAt(i);
-//                        System.out.println(formula.substring(startIndex + 1, endIndex));
-//                        evaluate(formula.substring(startIndex + 1, endIndex), x);
-//
-//                    }
-//                    else return x;
-//                }
-                return x;
-            }
-
-            /**
-             * This method evaluates expression factors such as numbers,
-             * unary pluses, and minuses
-             *
-             * @return The result expression
-             */
-            double parseFactor() {
-                if (!isBracket()) {
-                    if (checkSymbol('+')) return parseFactor();
-                    if (checkSymbol('-')) return -parseFactor();
-
-                    // Calculates an integer, regardless of whether it is an integer or a fraction
-                    double x;
-                    int startPos = this.pos;
-                    if ((character >= '0' && character <= '9') || character == '.') {
-                        while ((character >= '0' && character <= '9') || character == '.') nextChar();
-                        x = Double.parseDouble(formula.substring(startPos, this.pos));
-                    } else {
-                        throw new RuntimeException("Unexpected: " + (char) character);
-                    }
-                    return x;
-                }
-                return 0;
-            }
-
-            boolean isBracket() {
-                if (character == '(') {
-                    nextChar();
-                    return true;
-                }
-                return character == ')';
-            }
-        }.parse();
+        }
+        return false;
     }
 }
