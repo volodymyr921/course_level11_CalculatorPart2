@@ -17,34 +17,13 @@ public class Assignment11Part1 {
      */
     public static void main(String[] args) {
         FormulaTree formulaTree = parseFormula(args);
-        System.out.println(calculate(formulaTree.getFormula()));
+        System.out.println(calculate(formulaTree.getFormula()) + "\n");
     }
 
     private static FormulaTree parseFormula(String[] data) {
 
         String formulaParse = data[0];
         formulaParse = formulaParse.replaceAll("\\s", "");
-
-//        int countBrackets = 0;
-//        int startIndexBracket;
-//        int endIndexBracket;
-//        for (int i = 0; i < formulaParse.length(); i++) {
-//            if (formulaParse.charAt(i) == '(') {
-//                startIndexBracket = i;
-//                int j = i + 1;
-//                while (formulaParse.charAt(j) != ')') {
-//                  if (formulaParse.charAt(j) == '(') {
-//                        startIndexBracket = j;
-//                        countBrackets++;
-//                    }
-//                    j++;
-//                }
-//                endIndexBracket = j;
-//                String newFormula = formulaParse.substring(startIndexBracket + 1, endIndexBracket);
-//
-//                System.out.println(newFormula);
-//            }
-//        }
 
         // TODO: Заміна змінних їх значеннями
         HashMap<String, Double> variables = new HashMap<>();
@@ -105,7 +84,19 @@ public class Assignment11Part1 {
         while (isBrackets(formula)) {
             formula = new Brackets(formula).simplifyFormula();
         }
+        while (isFunction(formula)) {
+            formula = new Function(formula).simplifyFormula();
+        }
         return new Calculation(formula).parse();
+    }
+
+    public static boolean isFunction(String formula) {
+        for (int i = 0; i < formula.length(); i++) {
+            if (Character.isLetter(formula.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isBrackets(String formula) {

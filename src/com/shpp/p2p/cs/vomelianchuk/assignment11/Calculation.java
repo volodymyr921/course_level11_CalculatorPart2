@@ -38,6 +38,7 @@ public class Calculation {
      */
     double parse() {
         nextChar();
+
         return parseExpression();
     }
 
@@ -95,7 +96,6 @@ public class Calculation {
     double parseFactor() {
         if (checkSymbol('+')) return parseFactor();
         if (checkSymbol('-')) return -parseFactor();
-
         // Calculates an integer, regardless of whether it is an integer or a fraction
         double x;
         try {
@@ -103,36 +103,13 @@ public class Calculation {
             if (Character.isDigit(character) || character == '.') {
                 while (Character.isDigit(character) || character == '.') nextChar();
                 x = Double.parseDouble(formula.substring(startPos, this.pos));
-                //System.out.println(x);
-            }
-//             else if (Character.isLetter(character) || Character.isDigit(character)) {
-//                while (Character.isLetter(character) || Character.isDigit(character)) nextChar();
-//                String operation = formula.substring(startPos, this.pos);
-//                System.out.println(operation);
-//                if (!isFunction(operation)) throw new RuntimeException();
-//                System.out.println(operation);
-//                x = 0;
-            else {
+            } else {
                 throw new RuntimeException();
             }
-        } catch (RuntimeException exception) {
-            System.err.println("Invalid formula, contains characters that do not correspond to numbers or mathematical functions");
-            return Double.NaN;
+            } catch(RuntimeException exception){
+                System.err.println("Invalid formula, contains characters that do not correspond to numbers or mathematical functions");
+                return Double.NaN;
+            }
+            return x;
         }
-        return x;
     }
-
-
-//
-//    private boolean isFunction(String operation) {
-//        String[] functions = new String[]{"sin", "cos", "tan", "atan", "log10", "log2", "sqrt"};
-//        for (String fun : functions) {
-//            if (operation.equals(fun)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-
-}

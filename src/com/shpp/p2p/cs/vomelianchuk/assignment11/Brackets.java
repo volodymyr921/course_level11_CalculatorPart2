@@ -30,6 +30,9 @@ public class Brackets {
         }
         int endIndex = i;
         String partFormula = formula.substring(startIndex + 1, endIndex);
+        while (Assignment11Part1.isFunction(partFormula)) {
+            partFormula = new Function(partFormula).simplifyFormula();
+        }
         formula = formula.substring(0, startIndex) +
                 new Calculation(partFormula).parse() +
                 formula.substring(endIndex + 1);
