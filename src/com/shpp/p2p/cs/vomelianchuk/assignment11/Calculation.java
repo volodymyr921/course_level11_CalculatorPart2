@@ -1,10 +1,20 @@
 package com.shpp.p2p.cs.vomelianchuk.assignment11;
 
+/**
+ * Calculation.java
+ * ----------------
+ * A class that contains methods to evaluate a mathematical expression.
+ */
 public class Calculation {
     private int pos;
     private int character;
     private final String formula;
 
+    /**
+     * A constructor that creates an object with a given mathematical expression.
+     *
+     * @param formula a mathematical expression in the form of a string
+     */
     public Calculation(String formula) {
         this.pos = -1;
         this.formula = formula;
@@ -96,8 +106,8 @@ public class Calculation {
     double parseFactor() {
         if (checkSymbol('+')) return parseFactor();
         if (checkSymbol('-')) return -parseFactor();
-        // Calculates an integer, regardless of whether it is an integer or a fraction
         double x;
+
         try {
             int startPos = this.pos;
             if (Character.isDigit(character) || character == '.') {
@@ -106,10 +116,11 @@ public class Calculation {
             } else {
                 throw new RuntimeException();
             }
-            } catch(RuntimeException exception){
-                System.err.println("Invalid formula, contains characters that do not correspond to numbers or mathematical functions");
-                return Double.NaN;
-            }
-            return x;
+        } catch (RuntimeException exception) {
+            System.err.println("Invalid formula, contains characters that do not correspond to numbers or mathematical functions");
+            return Double.NaN;
         }
+
+        return x;
     }
+}
